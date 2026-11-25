@@ -77,12 +77,13 @@ class TokenResponse(BaseModel):
 # создание jwt 
 
 
-def create_acces_token(user_id:int)->str:
+def create_acces_token(user_id:int, email: str)->str:
     expire = datetime.now(timezone.utc)+timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
     payload = {
         "sub":str(user_id),
+        "email": email,
         "exp":expire
     }
 
@@ -91,7 +92,7 @@ def create_acces_token(user_id:int)->str:
         SECRET_KEY,
         algorithm=ALGORITHM
     )
-    return token
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 # проверка авторизации пользователя
 # 
@@ -197,7 +198,7 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession):
             detail="неверный логин или пароль",
             headers={"WWW-Authenticate":"Bearer"}
         )
-    token = create_acces_token(user.id)
+    token = create_acces_token(user.id, user.email)
 
     return TokenResponse(
         access_token=token,

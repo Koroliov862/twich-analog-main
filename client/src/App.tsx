@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { login,me,register,type User} from './api'
+import { Chat } from './Chat'
 import './App.css'
 
 type Mode = "login" | "register"
@@ -54,13 +55,16 @@ function App() {
 
   if (token && !user) return <div className="status-screen">Проверяем токен...</div>
 
-  if (token && user) return (
+    if (token && user) return (
     <div className="card profile-card">
       <h1>Ты в системе</h1>
       <div className="user-info">
         <p><span>ID:</span> {user.id}</p>
         <p><span>Email:</span> {user.email}</p>
       </div>
+      
+      <Chat token={token} room="main" />
+      
       <button className="logout-btn" onClick={logout}>Выйти</button>
     </div>
   )
