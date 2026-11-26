@@ -28,9 +28,21 @@ export function Chat({ token, room }: { token: string; room: string }) {
 
   // Управление WebSocket
   useEffect(() => {
-    const url =
-      `ws://127.0.0.1:8001/ws?room=${encodeURIComponent(room)}` +
-      `&token=${encodeURIComponent(token)}`
+    // Определяем, где мы находимся: локально или на туннеле
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    
+    // Если локально - используем ws://127.0.0.1:8001
+    // Если на туннеле - используем wss:// и тот же домен, но порт 8001
+    const host = isLocal 
+      ? '127.0.0.1:8001' 
+      : window.location.host.replace('5173', '8001')
+      
+    const protocol = isLocal ? 'ws://' : 'wss://'
+
+    const url = `${protocol}${host}/ws?room=${encodeURIComponent(room)}&token=${encodeURIComponent(token)}`
+    
+    console.log("Подключаемся к WebSocket:", url) // Для отладки
+
     const ws = new WebSocket(url)
     wsRef.current = ws
 
